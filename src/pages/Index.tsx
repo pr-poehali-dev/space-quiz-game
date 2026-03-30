@@ -9,6 +9,10 @@ import LeaderboardPage from '@/components/game/LeaderboardPage';
 import RulesPage from '@/components/game/RulesPage';
 import AboutPage from '@/components/game/AboutPage';
 import AdminEditor from '@/components/game/AdminEditor';
+import TruthOrLieGrid from '@/components/game/TruthOrLieGrid';
+import TruthOrLiePlay from '@/components/game/TruthOrLiePlay';
+import RiddleGrid from '@/components/game/RiddleGrid';
+import RiddlePlay from '@/components/game/RiddlePlay';
 import { wordsData, Difficulty } from '@/data/rebusData';
 
 type Screen =
@@ -20,16 +24,27 @@ type Screen =
   | 'leaderboard'
   | 'rules'
   | 'about'
-  | 'editor';
+  | 'editor'
+  | 'tol_grid'
+  | 'tol_play'
+  | 'riddle_grid'
+  | 'riddle_play';
 
 const Index = () => {
   const [screen, setScreen] = useState<Screen>('home');
+  const [key, setKey] = useState(0);
+
   const [selectedWordId, setSelectedWordId] = useState<number | null>(null);
   const [selectedDifficulty, setSelectedDifficulty] = useState<Difficulty | null>(null);
   const [solvedWords, setSolvedWords] = useState<Record<string, string[]>>({});
   const [score, setScore] = useState(0);
   const [lastResult, setLastResult] = useState<{ correct: boolean; timeLeft: number } | null>(null);
-  const [key, setKey] = useState(0);
+
+  const [selectedTolId, setSelectedTolId] = useState<number | null>(null);
+  const [solvedTol, setSolvedTol] = useState<Record<number, boolean>>({});
+
+  const [selectedRiddleId, setSelectedRiddleId] = useState<number | null>(null);
+  const [solvedRiddles, setSolvedRiddles] = useState<Record<number, boolean>>({});
 
   const navigate = (to: Screen) => {
     setKey(k => k + 1);
@@ -68,6 +83,32 @@ const Index = () => {
     navigate('gameplay');
   };
 
+  const handleTolSelect = (id: number) => {
+    setSelectedTolId(id);
+    navigate('tol_play');
+  };
+
+  const handleTolResult = (correct: boolean) => {
+    if (selectedTolId !== null) {
+      setSolvedTol(prev => ({ ...prev, [selectedTolId]: correct }));
+      if (correct) setScore(s => s + 50);
+    }
+    navigate('tol_grid');
+  };
+
+  const handleRiddleSelect = (id: number) => {
+    setSelectedRiddleId(id);
+    navigate('riddle_play');
+  };
+
+  const handleRiddleResult = (correct: boolean) => {
+    if (selectedRiddleId !== null) {
+      setSolvedRiddles(prev => ({ ...prev, [selectedRiddleId]: correct }));
+      if (correct) setScore(s => s + 75);
+    }
+    navigate('riddle_grid');
+  };
+
   const selectedWord = wordsData.find(w => w.id === selectedWordId);
 
   return (
@@ -85,7 +126,9 @@ const Index = () => {
       <div key={key} className="relative" style={{ zIndex: 2 }}>
         {screen === 'home' && (
           <HomePage
-            onStart={() => navigate('wordgrid')}
+            onStartRound1={() => navigate('wordgrid')}
+            onStartRound2={() => navigate('tol_grid')}
+            onStartRound3={() => navigate('riddle_grid')}
             onRules={() => navigate('rules')}
             onLeaderboard={() => navigate('leaderboard')}
             onAbout={() => navigate('about')}
@@ -128,6 +171,40 @@ const Index = () => {
             score={score}
             onContinue={() => navigate('wordgrid')}
             onRetry={handleRetry}
+          />
+        )}
+
+        {screen === 'tol_grid' && (
+          <TruthOrLieGrid
+            solvedItems={solvedTol}
+            onSelect={handleTolSelect}
+            onBack={() => navigate('home')}
+            score={score}
+          />
+        )}
+
+        {screen === 'tol_play' && selectedTolId !== null && (
+          <TruthOrLiePlay
+            itemId={selectedTolId}
+            onResult={handleTolResult}
+            onBack={() => navigate('tol_grid')}
+          />
+        )}
+
+        {screen === 'riddle_grid' && (
+          <RiddleGrid
+            solvedItems={solvedRiddles}
+            onSelect={handleRiddleSelect}
+            onBack={() => navigate('home')}
+            score={score}
+          />
+        )}
+
+        {screen === 'riddle_play' && selectedRiddleId !== null && (
+          <RiddlePlay
+            itemId={selectedRiddleId}
+            onResult={handleRiddleResult}
+            onBack={() => navigate('riddle_grid')}
           />
         )}
 
