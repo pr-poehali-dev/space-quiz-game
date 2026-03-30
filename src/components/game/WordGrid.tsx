@@ -76,7 +76,7 @@ const WordGrid = ({ solvedWords, onWordSelect, onBack }: WordGridProps) => {
               <button
                 key={word.id}
                 onClick={() => onWordSelect(word.id)}
-                className="relative p-3 rounded-xl border transition-all duration-200 hover:scale-105 active:scale-95 text-center group"
+                className="relative p-3 rounded-xl border transition-all duration-200 hover:scale-105 active:scale-95 text-center"
                 style={{
                   borderColor: full ? color : solved > 0 ? `${color}60` : 'rgba(255,255,255,0.08)',
                   background: full
@@ -90,9 +90,9 @@ const WordGrid = ({ solvedWords, onWordSelect, onBack }: WordGridProps) => {
               >
                 <div
                   className="font-orbitron text-xs font-bold mb-1.5 leading-tight"
-                  style={{ color: full ? color : solved > 0 ? `${color}cc` : '#888' }}
+                  style={{ color: solved > 0 ? color : '#666' }}
                 >
-                  {word.word}
+                  {solved > 0 ? word.word : `${idx + 1} слово`}
                 </div>
                 <div className="flex justify-center gap-0.5">
                   {[0, 1, 2].map(i => (
@@ -105,9 +105,6 @@ const WordGrid = ({ solvedWords, onWordSelect, onBack }: WordGridProps) => {
                       }}
                     />
                   ))}
-                </div>
-                <div className="font-exo text-gray-600 text-xs mt-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                  {solved}/3
                 </div>
               </button>
             );
