@@ -8,6 +8,7 @@ import ResultScreen from '@/components/game/ResultScreen';
 import LeaderboardPage from '@/components/game/LeaderboardPage';
 import RulesPage from '@/components/game/RulesPage';
 import AboutPage from '@/components/game/AboutPage';
+import AdminEditor from '@/components/game/AdminEditor';
 import { wordsData, Difficulty } from '@/data/rebusData';
 
 type Screen =
@@ -18,7 +19,8 @@ type Screen =
   | 'result'
   | 'leaderboard'
   | 'rules'
-  | 'about';
+  | 'about'
+  | 'editor';
 
 const Index = () => {
   const [screen, setScreen] = useState<Screen>('home');
@@ -87,6 +89,7 @@ const Index = () => {
             onRules={() => navigate('rules')}
             onLeaderboard={() => navigate('leaderboard')}
             onAbout={() => navigate('about')}
+            onEditor={() => navigate('editor')}
           />
         )}
 
@@ -141,6 +144,10 @@ const Index = () => {
 
         {screen === 'about' && (
           <AboutPage onBack={() => navigate('home')} />
+        )}
+
+        {screen === 'editor' && (
+          <AdminEditor onBack={() => navigate('home')} />
         )}
       </div>
     </div>

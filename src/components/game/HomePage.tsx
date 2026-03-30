@@ -6,9 +6,10 @@ interface HomePageProps {
   onRules: () => void;
   onLeaderboard: () => void;
   onAbout: () => void;
+  onEditor: () => void;
 }
 
-const HomePage = ({ onStart, onRules, onLeaderboard, onAbout }: HomePageProps) => {
+const HomePage = ({ onStart, onRules, onLeaderboard, onAbout, onEditor }: HomePageProps) => {
   const [visible, setVisible] = useState(false);
 
   useEffect(() => {
@@ -76,6 +77,15 @@ const HomePage = ({ onStart, onRules, onLeaderboard, onAbout }: HomePageProps) =
             </div>
           </button>
         </div>
+
+        <button
+          onClick={onEditor}
+          className="mt-3 w-full py-2.5 px-4 font-exo font-semibold text-xs rounded-xl border border-dashed transition-all duration-200 hover:bg-white/5 flex items-center justify-center gap-2"
+          style={{ borderColor: 'rgba(255,255,255,0.12)', color: '#555' }}
+        >
+          <Icon name="Pencil" size={13} />
+          Редактор ребусов (для организаторов)
+        </button>
       </div>
 
       <div className="mt-16 flex gap-8 text-center">

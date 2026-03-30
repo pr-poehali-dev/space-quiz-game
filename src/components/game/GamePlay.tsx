@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { wordsData, DIFFICULTY_CONFIG, Difficulty } from '@/data/rebusData';
+import { getCustomImage } from '@/components/game/AdminEditor';
 import Icon from '@/components/ui/icon';
 
 interface GamePlayProps {
@@ -14,6 +15,7 @@ const GamePlay = ({ wordId, difficulty, onSolve, onBack }: GamePlayProps) => {
   const config = DIFFICULTY_CONFIG[difficulty];
   const rebus = word?.rebus[difficulty];
 
+  const customImage = getCustomImage(wordId, difficulty);
   const [timeLeft, setTimeLeft] = useState(config.time);
   const [answer, setAnswer] = useState('');
   const [shake, setShake] = useState(false);
@@ -133,12 +135,20 @@ const GamePlay = ({ wordId, difficulty, onSolve, onBack }: GamePlayProps) => {
               }}
             >
               <div className="font-exo text-xs text-gray-500 uppercase tracking-widest mb-4">Разгадай ребус</div>
-              <div
-                className="font-exo text-4xl md:text-5xl font-bold text-white leading-tight"
-                style={{ textShadow: '0 2px 20px rgba(255,255,255,0.2)' }}
-              >
-                {rebus.puzzle}
-              </div>
+              {customImage ? (
+                <img
+                  src={customImage}
+                  alt="ребус"
+                  className="mx-auto max-h-48 object-contain rounded-xl"
+                />
+              ) : (
+                <div
+                  className="font-exo text-4xl md:text-5xl font-bold text-white leading-tight"
+                  style={{ textShadow: '0 2px 20px rgba(255,255,255,0.2)' }}
+                >
+                  {rebus.puzzle}
+                </div>
+              )}
 
               {showHint && (
                 <div
