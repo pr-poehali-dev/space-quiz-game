@@ -11,7 +11,9 @@ interface DifficultySelectProps {
 
 const DifficultySelect = ({ wordId, solvedDifficulties, onSelect, onBack }: DifficultySelectProps) => {
   const [visible, setVisible] = useState(false);
-  const word = wordsData.find(w => w.id === wordId);
+  const wordIndex = wordsData.findIndex(w => w.id === wordId);
+  const word = wordsData[wordIndex];
+  const isSolved = solvedDifficulties.length > 0;
 
   useEffect(() => {
     setTimeout(() => setVisible(true), 50);
@@ -34,13 +36,13 @@ const DifficultySelect = ({ wordId, solvedDifficulties, onSelect, onBack }: Diff
 
         <div className="text-center mb-10">
           <div className="font-exo text-xs tracking-widest text-gray-500 uppercase mb-2">
-            {word.category}
+            {isSolved ? word.category : 'Загадочное слово'}
           </div>
           <h2
             className="font-orbitron text-4xl md:text-5xl font-black text-white"
             style={{ textShadow: '0 0 30px rgba(0,255,255,0.5)' }}
           >
-            {word.word}
+            {isSolved ? word.word : `${wordIndex + 1} слово`}
           </h2>
           <div className="mt-3 flex justify-center gap-2">
             {difficulties.map(d => (
