@@ -120,7 +120,7 @@ const GamePlay = ({ wordId, difficulty, onSolve, onBack }: GamePlayProps) => {
           <div className="text-center py-8">
             <div className="text-6xl mb-4">⏰</div>
             <div className="font-orbitron text-2xl font-bold text-red-400 mb-2">ВРЕМЯ ВЫШЛО!</div>
-            <div className="font-exo text-gray-400">Ответ: <span style={{ color: '#00ffff' }}>{word.word}</span></div>
+            <div className="font-exo text-gray-500 text-sm">Попробуй ещё раз</div>
           </div>
         ) : (
           <>
