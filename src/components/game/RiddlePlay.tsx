@@ -1,21 +1,22 @@
 import { useState, useEffect, useRef } from 'react';
-import { riddlesData } from '@/data/rebusData';
-import { getCustomRiddle, getCustomRiddleImage, getCustomRiddleTime } from '@/components/game/AdminEditor';
+import { riddlesData, RIDDLE_DIFFICULTY_CONFIG, Difficulty } from '@/data/rebusData';
+import { getCustomRiddle, getCustomRiddleImage } from '@/components/game/AdminEditor';
 import Icon from '@/components/ui/icon';
 
 interface RiddlePlayProps {
   itemId: number;
+  difficulty: Difficulty;
   onResult: (correct: boolean) => void;
   onBack: () => void;
 }
 
-const RiddlePlay = ({ itemId, onResult, onBack }: RiddlePlayProps) => {
+const RiddlePlay = ({ itemId, difficulty, onResult, onBack }: RiddlePlayProps) => {
   const base = riddlesData.find(r => r.id === itemId)!;
   const custom = getCustomRiddle(itemId);
   const item = { ...base, ...custom };
   const customImage = getCustomRiddleImage(itemId);
-  const customTime = getCustomRiddleTime();
-  const TIME = customTime || 60;
+  const config = RIDDLE_DIFFICULTY_CONFIG[difficulty];
+  const TIME = config.time;
 
   const [timeLeft, setTimeLeft] = useState(TIME);
   const [answer, setAnswer] = useState('');
@@ -52,7 +53,7 @@ const RiddlePlay = ({ itemId, onResult, onBack }: RiddlePlayProps) => {
   }, [timeUp]);
 
   const progress = timeLeft / TIME;
-  const timerColor = progress > 0.5 ? '#aa00ff' : progress > 0.25 ? '#ffaa00' : '#ff3366';
+  const timerColor = progress > 0.5 ? config.color : progress > 0.25 ? '#ffaa00' : '#ff3366';
   const circumference = 2 * Math.PI * 54;
 
   const handleSubmit = () => {
@@ -67,6 +68,8 @@ const RiddlePlay = ({ itemId, onResult, onBack }: RiddlePlayProps) => {
     }
   };
 
+  const hintDisabled = difficulty === 'hard';
+
   return (
     <div className={`relative z-10 flex flex-col items-center justify-center min-h-screen px-6 transition-all duration-500 ${visible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'}`}>
       <div className="w-full max-w-lg">
@@ -80,9 +83,9 @@ const RiddlePlay = ({ itemId, onResult, onBack }: RiddlePlayProps) => {
           </button>
           <div
             className="font-orbitron text-sm font-bold px-3 py-1 rounded-full border"
-            style={{ color: '#aa00ff', borderColor: 'rgba(170,0,255,0.4)', background: 'rgba(170,0,255,0.1)' }}
+            style={{ color: config.color, borderColor: `${config.color}40`, background: `${config.color}10` }}
           >
-            ЗАГАДКИ
+            {config.label}
           </div>
         </div>
 
@@ -121,9 +124,9 @@ const RiddlePlay = ({ itemId, onResult, onBack }: RiddlePlayProps) => {
             <div
               className="relative p-8 rounded-2xl border mb-6 text-center"
               style={{
-                borderColor: 'rgba(170,0,255,0.3)',
-                background: 'rgba(170,0,255,0.06)',
-                boxShadow: '0 0 40px rgba(170,0,255,0.1)',
+                borderColor: `${config.color}30`,
+                background: `${config.color}06`,
+                boxShadow: `0 0 40px ${config.color}10`,
               }}
             >
               {customImage && (
@@ -137,10 +140,10 @@ const RiddlePlay = ({ itemId, onResult, onBack }: RiddlePlayProps) => {
                 {item.question}
               </div>
 
-              {showHint && (
+              {showHint && !hintDisabled && (
                 <div
                   className="mt-4 p-3 rounded-xl text-sm font-exo"
-                  style={{ background: 'rgba(170,0,255,0.1)', color: '#aa00ff', border: '1px solid rgba(170,0,255,0.2)' }}
+                  style={{ background: `${config.color}10`, color: config.color, border: `1px solid ${config.color}20` }}
                 >
                   💡 {item.hint}
                 </div>
@@ -157,27 +160,29 @@ const RiddlePlay = ({ itemId, onResult, onBack }: RiddlePlayProps) => {
                 placeholder="Введи ответ..."
                 className="w-full p-4 rounded-xl font-orbitron text-lg text-white text-center tracking-widest bg-transparent border outline-none transition-all duration-200 placeholder-gray-600 uppercase"
                 style={{
-                  borderColor: 'rgba(170,0,255,0.4)',
+                  borderColor: `${config.color}40`,
                   background: 'rgba(255,255,255,0.03)',
-                  boxShadow: '0 0 20px rgba(170,0,255,0.15)',
+                  boxShadow: `0 0 20px ${config.color}15`,
                 }}
               />
             </div>
 
             <div className="flex gap-3">
-              <button
-                onClick={() => setShowHint(!showHint)}
-                className="flex-1 py-3 px-4 rounded-xl font-exo font-semibold text-sm border transition-all duration-200 hover:bg-white/5"
-                style={{ borderColor: 'rgba(255,255,255,0.1)', color: '#888' }}
-              >
-                {showHint ? 'Скрыть подсказку' : '💡 Подсказка'}
-              </button>
+              {!hintDisabled && (
+                <button
+                  onClick={() => setShowHint(!showHint)}
+                  className="flex-1 py-3 px-4 rounded-xl font-exo font-semibold text-sm border transition-all duration-200 hover:bg-white/5"
+                  style={{ borderColor: 'rgba(255,255,255,0.1)', color: '#888' }}
+                >
+                  {showHint ? 'Скрыть подсказку' : '💡 Подсказка'}
+                </button>
+              )}
               <button
                 onClick={handleSubmit}
-                className="flex-1 py-3 px-6 rounded-xl font-orbitron font-bold text-sm text-white transition-all duration-200 hover:scale-105 active:scale-95"
+                className="flex-1 py-3 px-6 rounded-xl font-orbitron font-bold text-sm text-black transition-all duration-200 hover:scale-105 active:scale-95"
                 style={{
-                  background: 'linear-gradient(135deg, #aa00ff, #7700cc)',
-                  boxShadow: '0 0 20px rgba(170,0,255,0.4)',
+                  background: `linear-gradient(135deg, ${config.color}, ${config.color}cc)`,
+                  boxShadow: `0 0 20px ${config.color}40`,
                 }}
               >
                 ПРОВЕРИТЬ

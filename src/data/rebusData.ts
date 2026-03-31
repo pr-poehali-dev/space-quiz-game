@@ -23,6 +23,18 @@ export const DIFFICULTY_CONFIG = {
   hard: { label: 'СЛОЖНО', time: 90, color: '#ff3366', glow: '0 0 20px #ff3366' },
 };
 
+export const TOL_DIFFICULTY_CONFIG = {
+  easy: { label: 'ЛЕГКО', time: 30, color: '#00ff88', points: 30 },
+  medium: { label: 'СРЕДНЕ', time: 20, color: '#ffaa00', points: 60 },
+  hard: { label: 'СЛОЖНО', time: 10, color: '#ff3366', points: 100 },
+};
+
+export const RIDDLE_DIFFICULTY_CONFIG = {
+  easy: { label: 'ЛЕГКО', time: 90, color: '#00ff88', points: 50 },
+  medium: { label: 'СРЕДНЕ', time: 60, color: '#ffaa00', points: 100 },
+  hard: { label: 'СЛОЖНО', time: 30, color: '#ff3366', points: 150 },
+};
+
 export interface TruthOrLieItem {
   id: number;
   statement: string;

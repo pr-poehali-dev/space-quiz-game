@@ -1,21 +1,22 @@
 import { useState, useEffect, useRef } from 'react';
-import { truthOrLieData } from '@/data/rebusData';
-import { getCustomTolStatement, getCustomTolImage, getCustomTolTime } from '@/components/game/AdminEditor';
+import { truthOrLieData, TOL_DIFFICULTY_CONFIG, Difficulty } from '@/data/rebusData';
+import { getCustomTolStatement, getCustomTolImage } from '@/components/game/AdminEditor';
 import Icon from '@/components/ui/icon';
 
 interface TruthOrLiePlayProps {
   itemId: number;
+  difficulty: Difficulty;
   onResult: (correct: boolean) => void;
   onBack: () => void;
 }
 
-const TruthOrLiePlay = ({ itemId, onResult, onBack }: TruthOrLiePlayProps) => {
+const TruthOrLiePlay = ({ itemId, difficulty, onResult, onBack }: TruthOrLiePlayProps) => {
   const base = truthOrLieData.find(t => t.id === itemId)!;
   const custom = getCustomTolStatement(itemId);
   const item = { ...base, ...custom };
   const customImage = getCustomTolImage(itemId);
-  const customTime = getCustomTolTime();
-  const TIME = customTime || 30;
+  const config = TOL_DIFFICULTY_CONFIG[difficulty];
+  const TIME = config.time;
 
   const [chosen, setChosen] = useState<boolean | null>(null);
   const [revealed, setRevealed] = useState(false);
@@ -57,7 +58,7 @@ const TruthOrLiePlay = ({ itemId, onResult, onBack }: TruthOrLiePlayProps) => {
   };
 
   const progress = timeLeft / TIME;
-  const timerColor = progress > 0.5 ? '#ffaa00' : progress > 0.25 ? '#ff6600' : '#ff3366';
+  const timerColor = progress > 0.5 ? config.color : progress > 0.25 ? '#ffaa00' : '#ff3366';
   const circumference = 2 * Math.PI * 54;
 
   const correct = chosen === item.isTrue;
@@ -75,9 +76,9 @@ const TruthOrLiePlay = ({ itemId, onResult, onBack }: TruthOrLiePlayProps) => {
           </button>
           <div
             className="font-orbitron text-sm font-bold px-3 py-1 rounded-full border"
-            style={{ color: '#ffaa00', borderColor: 'rgba(255,170,0,0.4)', background: 'rgba(255,170,0,0.1)' }}
+            style={{ color: config.color, borderColor: `${config.color}40`, background: `${config.color}10` }}
           >
-            ПРАВДА ИЛИ ЛОЖЬ
+            {config.label}
           </div>
         </div>
 
@@ -118,13 +119,13 @@ const TruthOrLiePlay = ({ itemId, onResult, onBack }: TruthOrLiePlayProps) => {
               style={{
                 borderColor: revealed
                   ? correct ? 'rgba(0,255,136,0.4)' : 'rgba(255,51,102,0.4)'
-                  : 'rgba(255,170,0,0.3)',
+                  : `${config.color}30`,
                 background: revealed
                   ? correct ? 'rgba(0,255,136,0.06)' : 'rgba(255,51,102,0.06)'
-                  : 'rgba(255,170,0,0.06)',
+                  : `${config.color}06`,
                 boxShadow: revealed
                   ? correct ? '0 0 40px rgba(0,255,136,0.1)' : '0 0 40px rgba(255,51,102,0.1)'
-                  : '0 0 40px rgba(255,170,0,0.1)',
+                  : `0 0 40px ${config.color}10`,
                 transition: 'all 0.4s ease',
               }}
             >
@@ -148,7 +149,7 @@ const TruthOrLiePlay = ({ itemId, onResult, onBack }: TruthOrLiePlayProps) => {
                     className="font-orbitron text-lg font-black mb-3"
                     style={{ color: correct ? '#00ff88' : '#ff3366', textShadow: `0 0 20px ${correct ? '#00ff88' : '#ff3366'}` }}
                   >
-                    {correct ? 'ВЕРНО!' : `НЕТ — ${item.isTrue ? 'ПРАВДА' : 'ЛОЖЬ'}`}
+                    {correct ? `ВЕРНО! +${config.points}` : `НЕТ — ${item.isTrue ? 'ПРАВДА' : 'ЛОЖЬ'}`}
                   </div>
                   <div
                     className="font-exo text-sm text-gray-400 leading-relaxed p-3 rounded-xl"

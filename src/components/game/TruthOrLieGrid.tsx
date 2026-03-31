@@ -1,9 +1,11 @@
 import { useState, useEffect } from 'react';
-import { truthOrLieData } from '@/data/rebusData';
+import { truthOrLieData, DIFFICULTY_CONFIG, Difficulty } from '@/data/rebusData';
 import Icon from '@/components/ui/icon';
 
+const DIFFICULTIES: Difficulty[] = ['easy', 'medium', 'hard'];
+
 interface TruthOrLieGridProps {
-  solvedItems: Record<number, boolean>;
+  solvedItems: Record<string, string[]>;
   onSelect: (id: number) => void;
   onBack: () => void;
   score: number;
@@ -17,6 +19,7 @@ const TruthOrLieGrid = ({ solvedItems, onSelect, onBack, score }: TruthOrLieGrid
   }, []);
 
   const solvedCount = Object.keys(solvedItems).length;
+  const totalSolved = Object.values(solvedItems).reduce((sum, arr) => sum + arr.length, 0);
 
   return (
     <div className={`relative z-10 min-h-screen px-4 py-6 transition-all duration-500 ${visible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'}`}>
@@ -32,7 +35,7 @@ const TruthOrLieGrid = ({ solvedItems, onSelect, onBack, score }: TruthOrLieGrid
           <div className="font-orbitron text-center">
             <div className="text-white text-lg font-bold">ПРАВДА ИЛИ ЛОЖЬ</div>
             <div className="text-xs text-gray-500 mt-0.5">
-              Отвечено: <span style={{ color: '#ffaa00' }}>{solvedCount}</span> / {truthOrLieData.length}
+              Пройдено: <span style={{ color: '#ffaa00' }}>{totalSolved}</span> / {truthOrLieData.length * 3}
             </div>
           </div>
           <div className="font-orbitron text-right">
@@ -45,7 +48,7 @@ const TruthOrLieGrid = ({ solvedItems, onSelect, onBack, score }: TruthOrLieGrid
           <div
             className="h-full rounded-full transition-all duration-500"
             style={{
-              width: `${(solvedCount / truthOrLieData.length) * 100}%`,
+              width: `${(totalSolved / (truthOrLieData.length * 3)) * 100}%`,
               background: 'linear-gradient(90deg, #ffaa00, #ff6600)',
               boxShadow: '0 0 10px #ffaa00',
             }}
@@ -54,8 +57,8 @@ const TruthOrLieGrid = ({ solvedItems, onSelect, onBack, score }: TruthOrLieGrid
 
         <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-3">
           {truthOrLieData.map((item, idx) => {
-            const solved = item.id in solvedItems;
-            const wasCorrect = solvedItems[item.id];
+            const solvedDiffs = solvedItems[item.id] || [];
+            const hasSolved = solvedDiffs.length > 0;
 
             return (
               <button
@@ -63,28 +66,32 @@ const TruthOrLieGrid = ({ solvedItems, onSelect, onBack, score }: TruthOrLieGrid
                 onClick={() => onSelect(item.id)}
                 className="relative p-3 rounded-xl border transition-all duration-200 hover:scale-105 active:scale-95 text-center"
                 style={{
-                  borderColor: solved
-                    ? wasCorrect ? 'rgba(0,255,136,0.5)' : 'rgba(255,51,102,0.5)'
+                  borderColor: hasSolved
+                    ? solvedDiffs.length === 3 ? 'rgba(0,255,136,0.5)' : 'rgba(255,170,0,0.4)'
                     : 'rgba(255,170,0,0.2)',
-                  background: solved
-                    ? wasCorrect ? 'rgba(0,255,136,0.1)' : 'rgba(255,51,102,0.1)'
+                  background: hasSolved
+                    ? solvedDiffs.length === 3 ? 'rgba(0,255,136,0.08)' : 'rgba(255,170,0,0.06)'
                     : 'rgba(255,170,0,0.04)',
-                  boxShadow: solved
-                    ? wasCorrect ? '0 0 12px rgba(0,255,136,0.2)' : '0 0 12px rgba(255,51,102,0.2)'
+                  boxShadow: solvedDiffs.length === 3
+                    ? '0 0 12px rgba(0,255,136,0.2)'
                     : 'none',
                 }}
               >
                 <div
                   className="font-orbitron text-xs font-bold mb-1"
-                  style={{ color: solved ? (wasCorrect ? '#00ff88' : '#ff3366') : '#ffaa0080' }}
+                  style={{ color: hasSolved ? (solvedDiffs.length === 3 ? '#00ff88' : '#ffaa00') : '#ffaa0080' }}
                 >
                   #{idx + 1}
                 </div>
-                {solved ? (
-                  <div className="text-lg">{wasCorrect ? '✅' : '❌'}</div>
-                ) : (
+                <div className="flex justify-center gap-0.5 mt-0.5">
+                  {DIFFICULTIES.map(d => (
+                    <div key={d} className="w-1.5 h-1.5 rounded-full"
+                      style={{ background: solvedDiffs.includes(d) ? DIFFICULTY_CONFIG[d].color : 'rgba(255,255,255,0.1)' }} />
+                  ))}
+                </div>
+                {!hasSolved && (
                   <div
-                    className="font-orbitron text-sm font-bold"
+                    className="font-orbitron text-sm font-bold mt-0.5"
                     style={{ color: 'rgba(255,170,0,0.3)' }}
                   >
                     ?

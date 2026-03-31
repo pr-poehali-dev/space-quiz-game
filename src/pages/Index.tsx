@@ -10,10 +10,12 @@ import RulesPage from '@/components/game/RulesPage';
 import AboutPage from '@/components/game/AboutPage';
 import AdminEditor from '@/components/game/AdminEditor';
 import TruthOrLieGrid from '@/components/game/TruthOrLieGrid';
+import TolDifficultySelect from '@/components/game/TolDifficultySelect';
 import TruthOrLiePlay from '@/components/game/TruthOrLiePlay';
 import RiddleGrid from '@/components/game/RiddleGrid';
+import RiddleDifficultySelect from '@/components/game/RiddleDifficultySelect';
 import RiddlePlay from '@/components/game/RiddlePlay';
-import { wordsData, Difficulty, DIFFICULTY_CONFIG } from '@/data/rebusData';
+import { wordsData, Difficulty, DIFFICULTY_CONFIG, TOL_DIFFICULTY_CONFIG, RIDDLE_DIFFICULTY_CONFIG } from '@/data/rebusData';
 import { getCustomR1Time, getCustomWord } from '@/components/game/AdminEditor';
 
 type Screen =
@@ -27,8 +29,10 @@ type Screen =
   | 'about'
   | 'editor'
   | 'tol_grid'
+  | 'tol_difficulty'
   | 'tol_play'
   | 'riddle_grid'
+  | 'riddle_difficulty'
   | 'riddle_play';
 
 const Index = () => {
@@ -42,10 +46,12 @@ const Index = () => {
   const [lastResult, setLastResult] = useState<{ correct: boolean; timeLeft: number } | null>(null);
 
   const [selectedTolId, setSelectedTolId] = useState<number | null>(null);
-  const [solvedTol, setSolvedTol] = useState<Record<number, boolean>>({});
+  const [selectedTolDifficulty, setSelectedTolDifficulty] = useState<Difficulty | null>(null);
+  const [solvedTol, setSolvedTol] = useState<Record<string, string[]>>({});
 
   const [selectedRiddleId, setSelectedRiddleId] = useState<number | null>(null);
-  const [solvedRiddles, setSolvedRiddles] = useState<Record<number, boolean>>({});
+  const [selectedRiddleDifficulty, setSelectedRiddleDifficulty] = useState<Difficulty | null>(null);
+  const [solvedRiddles, setSolvedRiddles] = useState<Record<string, string[]>>({});
 
   const navigate = (to: Screen) => {
     setKey(k => k + 1);
@@ -87,28 +93,56 @@ const Index = () => {
 
   const handleTolSelect = (id: number) => {
     setSelectedTolId(id);
+    navigate('tol_difficulty');
+  };
+
+  const handleTolDifficultySelect = (difficulty: Difficulty) => {
+    setSelectedTolDifficulty(difficulty);
     navigate('tol_play');
   };
 
   const handleTolResult = (correct: boolean) => {
-    if (selectedTolId !== null) {
-      setSolvedTol(prev => ({ ...prev, [selectedTolId]: correct }));
-      if (correct) setScore(s => s + 50);
+    if (selectedTolId !== null && selectedTolDifficulty) {
+      if (correct) {
+        const points = TOL_DIFFICULTY_CONFIG[selectedTolDifficulty].points;
+        setScore(s => s + points);
+      }
+      setSolvedTol(prev => {
+        const current = prev[selectedTolId] || [];
+        if (correct && !current.includes(selectedTolDifficulty)) {
+          return { ...prev, [selectedTolId]: [...current, selectedTolDifficulty] };
+        }
+        return prev;
+      });
     }
-    navigate('tol_grid');
+    navigate('tol_difficulty');
   };
 
   const handleRiddleSelect = (id: number) => {
     setSelectedRiddleId(id);
+    navigate('riddle_difficulty');
+  };
+
+  const handleRiddleDifficultySelect = (difficulty: Difficulty) => {
+    setSelectedRiddleDifficulty(difficulty);
     navigate('riddle_play');
   };
 
   const handleRiddleResult = (correct: boolean) => {
-    if (selectedRiddleId !== null) {
-      setSolvedRiddles(prev => ({ ...prev, [selectedRiddleId]: correct }));
-      if (correct) setScore(s => s + 75);
+    if (selectedRiddleId !== null && selectedRiddleDifficulty) {
+      if (correct) {
+        const points = RIDDLE_DIFFICULTY_CONFIG[selectedRiddleDifficulty].points;
+        setScore(s => s + points);
+      }
+      setSolvedRiddles(prev => {
+        const current = prev[selectedRiddleId] || [];
+        if (correct && !current.includes(selectedRiddleDifficulty)) {
+          return { ...prev, [selectedRiddleId]: [...current, selectedRiddleDifficulty] };
+        }
+        return prev;
+      });
     }
-    navigate('riddle_grid');
+    navigate('riddle_difficulty');
   };
 
   const selectedWord = wordsData.find(w => w.id === selectedWordId);
@@ -186,11 +220,21 @@ const Index = () => {
           />
         )}
 
-        {screen === 'tol_play' && selectedTolId !== null && (
+        {screen === 'tol_difficulty' && selectedTolId !== null && (
+          <TolDifficultySelect
+            itemId={selectedTolId}
+            solvedDifficulties={solvedTol[selectedTolId] || []}
+            onSelect={handleTolDifficultySelect}
+            onBack={() => navigate('tol_grid')}
+          />
+        )}
+
+        {screen === 'tol_play' && selectedTolId !== null && selectedTolDifficulty !== null && (
           <TruthOrLiePlay
             itemId={selectedTolId}
+            difficulty={selectedTolDifficulty}
             onResult={handleTolResult}
-            onBack={() => navigate('tol_grid')}
+            onBack={() => navigate('tol_difficulty')}
           />
         )}
 
@@ -203,11 +247,21 @@ const Index = () => {
           />
         )}
 
-        {screen === 'riddle_play' && selectedRiddleId !== null && (
+        {screen === 'riddle_difficulty' && selectedRiddleId !== null && (
+          <RiddleDifficultySelect
+            itemId={selectedRiddleId}
+            solvedDifficulties={solvedRiddles[selectedRiddleId] || []}
+            onSelect={handleRiddleDifficultySelect}
+            onBack={() => navigate('riddle_grid')}
+          />
+        )}
+
+        {screen === 'riddle_play' && selectedRiddleId !== null && selectedRiddleDifficulty !== null && (
           <RiddlePlay
             itemId={selectedRiddleId}
+            difficulty={selectedRiddleDifficulty}
             onResult={handleRiddleResult}
-            onBack={() => navigate('riddle_grid')}
+            onBack={() => navigate('riddle_difficulty')}
           />
         )}
 
