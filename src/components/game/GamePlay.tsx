@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { wordsData, DIFFICULTY_CONFIG, Difficulty } from '@/data/rebusData';
-import { getCustomImage } from '@/components/game/AdminEditor';
+import { getCustomImage, getCustomWord, getCustomHint, getCustomR1Time } from '@/components/game/AdminEditor';
 import Icon from '@/components/ui/icon';
 
 interface GamePlayProps {
@@ -16,7 +16,11 @@ const GamePlay = ({ wordId, difficulty, onSolve, onBack }: GamePlayProps) => {
   const rebus = word?.rebus[difficulty];
 
   const customImage = getCustomImage(wordId, difficulty);
-  const [timeLeft, setTimeLeft] = useState(config.time);
+  const customWord = getCustomWord(wordId);
+  const customHint = getCustomHint(wordId, difficulty);
+  const customTime = getCustomR1Time(difficulty);
+  const actualTime = customTime || config.time;
+  const [timeLeft, setTimeLeft] = useState(actualTime);
   const [answer, setAnswer] = useState('');
   const [shake, setShake] = useState(false);
   const [showHint, setShowHint] = useState(false);
@@ -52,12 +56,13 @@ const GamePlay = ({ wordId, difficulty, onSolve, onBack }: GamePlayProps) => {
 
   if (!word || !rebus) return null;
 
-  const progress = timeLeft / config.time;
+  const progress = timeLeft / actualTime;
   const timerColor = progress > 0.5 ? config.color : progress > 0.25 ? '#ffaa00' : '#ff3366';
 
   const handleSubmit = () => {
     const normalized = answer.trim().toUpperCase();
-    if (normalized === word.word) {
+    const correctAnswer = (customWord || word.word).toUpperCase();
+    if (normalized === correctAnswer) {
       clearInterval(intervalRef.current!);
       onSolve(true, timeLeft);
     } else {
@@ -155,7 +160,7 @@ const GamePlay = ({ wordId, difficulty, onSolve, onBack }: GamePlayProps) => {
                   className="mt-4 p-3 rounded-xl text-sm font-exo"
                   style={{ background: `${config.color}10`, color: config.color, border: `1px solid ${config.color}20` }}
                 >
-                  💡 {rebus.hint}
+                  💡 {customHint || rebus.hint}
                 </div>
               )}
             </div>

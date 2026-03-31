@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react';
 import { truthOrLieData } from '@/data/rebusData';
-import { getCustomTolStatement } from '@/components/game/AdminEditor';
 import Icon from '@/components/ui/icon';
 
 interface TruthOrLieGridProps {
@@ -55,8 +54,6 @@ const TruthOrLieGrid = ({ solvedItems, onSelect, onBack, score }: TruthOrLieGrid
 
         <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-3">
           {truthOrLieData.map((item, idx) => {
-            const custom = getCustomTolStatement(item.id);
-            const merged = { ...item, ...custom };
             const solved = item.id in solvedItems;
             const wasCorrect = solvedItems[item.id];
 
@@ -87,8 +84,8 @@ const TruthOrLieGrid = ({ solvedItems, onSelect, onBack, score }: TruthOrLieGrid
                   <div className="text-lg">{wasCorrect ? '✅' : '❌'}</div>
                 ) : (
                   <div
-                    className="font-orbitron text-xs font-bold"
-                    style={{ color: merged.isTrue ? 'rgba(0,255,136,0.4)' : 'rgba(255,51,102,0.4)' }}
+                    className="font-orbitron text-sm font-bold"
+                    style={{ color: 'rgba(255,170,0,0.3)' }}
                   >
                     ?
                   </div>

@@ -13,7 +13,8 @@ import TruthOrLieGrid from '@/components/game/TruthOrLieGrid';
 import TruthOrLiePlay from '@/components/game/TruthOrLiePlay';
 import RiddleGrid from '@/components/game/RiddleGrid';
 import RiddlePlay from '@/components/game/RiddlePlay';
-import { wordsData, Difficulty } from '@/data/rebusData';
+import { wordsData, Difficulty, DIFFICULTY_CONFIG } from '@/data/rebusData';
+import { getCustomR1Time, getCustomWord } from '@/components/game/AdminEditor';
 
 type Screen =
   | 'home'
@@ -64,8 +65,9 @@ const Index = () => {
   const handleSolve = (correct: boolean, timeLeft: number) => {
     if (correct && selectedWordId && selectedDifficulty) {
       const multMap = { easy: 1, medium: 2, hard: 3 };
-      const timeMap = { easy: 30, medium: 60, hard: 90 };
-      const earned = Math.round((timeLeft / timeMap[selectedDifficulty]) * 100 * multMap[selectedDifficulty]);
+      const customTime = getCustomR1Time(selectedDifficulty);
+      const totalTime = customTime || DIFFICULTY_CONFIG[selectedDifficulty].time;
+      const earned = Math.round((timeLeft / totalTime) * 100 * multMap[selectedDifficulty]);
       setScore(s => s + earned);
       setSolvedWords(prev => {
         const current = prev[selectedWordId] || [];
@@ -110,6 +112,7 @@ const Index = () => {
   };
 
   const selectedWord = wordsData.find(w => w.id === selectedWordId);
+  const displayWordName = selectedWordId ? (getCustomWord(selectedWordId) || selectedWord?.word || '') : '';
 
   return (
     <div className="relative min-h-screen overflow-hidden" style={{ background: '#020414' }}>
@@ -164,7 +167,7 @@ const Index = () => {
 
         {screen === 'result' && selectedWordId !== null && selectedDifficulty !== null && lastResult && (
           <ResultScreen
-            wordName={selectedWord?.word || ''}
+            wordName={displayWordName}
             difficulty={selectedDifficulty}
             correct={lastResult.correct}
             timeLeft={lastResult.timeLeft}

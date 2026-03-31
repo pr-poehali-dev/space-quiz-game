@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { riddlesData } from '@/data/rebusData';
-import { getCustomRiddle } from '@/components/game/AdminEditor';
+import { getCustomRiddle, getCustomRiddleImage, getCustomRiddleTime } from '@/components/game/AdminEditor';
 import Icon from '@/components/ui/icon';
 
 interface RiddlePlayProps {
@@ -9,12 +9,13 @@ interface RiddlePlayProps {
   onBack: () => void;
 }
 
-const TIME = 60;
-
 const RiddlePlay = ({ itemId, onResult, onBack }: RiddlePlayProps) => {
   const base = riddlesData.find(r => r.id === itemId)!;
   const custom = getCustomRiddle(itemId);
   const item = { ...base, ...custom };
+  const customImage = getCustomRiddleImage(itemId);
+  const customTime = getCustomRiddleTime();
+  const TIME = customTime || 60;
 
   const [timeLeft, setTimeLeft] = useState(TIME);
   const [answer, setAnswer] = useState('');
@@ -125,6 +126,9 @@ const RiddlePlay = ({ itemId, onResult, onBack }: RiddlePlayProps) => {
                 boxShadow: '0 0 40px rgba(170,0,255,0.1)',
               }}
             >
+              {customImage && (
+                <img src={customImage} alt="" className="mx-auto max-h-36 object-contain rounded-xl mb-4" />
+              )}
               <div className="font-exo text-xs text-gray-500 uppercase tracking-widest mb-4">Загадка</div>
               <div
                 className="font-exo text-xl md:text-2xl font-semibold text-white leading-snug"
